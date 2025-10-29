@@ -11,7 +11,6 @@ public class LeaveStartRequest {
 
     private String employee = "employee";
     private String leader = "leader";
-    private String leaders = "leaderA,leaderB";
     private String manager = "manager";
 
 }

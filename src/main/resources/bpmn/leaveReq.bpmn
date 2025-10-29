@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0er8y25" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0er8y25" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
   <bpmn:process id="LEAVE_REQ" name="最新请假流程" isExecutable="true" camunda:historyTimeToLive="180">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="day" label="请假天数" type="string" defaultValue="1" />
-          <camunda:formField id="start_time" label="开始时间" type="date" />
-          <camunda:formField id="end_time" label="结束时间" type="date" />
-          <camunda:formField id="reason" label="请假原因" type="string" />
-        </camunda:formData>
+        <camunda:formData />
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_131udyp</bpmn:outgoing>
     </bpmn:startEvent>
@@ -29,7 +24,7 @@
       <bpmn:incoming>Flow_0xzx194</bpmn:incoming>
       <bpmn:outgoing>Flow_0xoof7p</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_08xzkrp" name="组长审批" camunda:candidateUsers="${leaders}">
+    <bpmn:userTask id="Activity_08xzkrp" name="组长审批" camunda:candidateUsers="" camunda:candidateGroups="${leader}">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="reason" label="驳回原因" type="string" />
@@ -38,7 +33,7 @@
       <bpmn:incoming>Flow_0oqd6l9</bpmn:incoming>
       <bpmn:outgoing>Flow_1b1rd0j</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="Activity_0a4cs1n" name="主管审批" camunda:assignee="${manager}">
+    <bpmn:userTask id="Activity_0a4cs1n" name="主管审批" camunda:assignee="${manager}" camunda:candidateUsers="" camunda:candidateGroups="">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="reason" label="驳回原因" type="string" />
