@@ -1,15 +1,13 @@
 package com.example.camundademo.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.IdentityService;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.runtime.ActivityInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.camunda.bpm.model.bpmn.instance.Process;
@@ -40,6 +38,8 @@ public class ProcessInstanceService {
     private RepositoryService repositoryService;
     @Autowired
     private IdentityService identityService;
+    @Autowired
+    private TaskService taskService;
 
     /**
      * 撤回流程实例（回退到发起节点）
@@ -50,12 +50,10 @@ public class ProcessInstanceService {
                 .singleResult();
         if (instance == null) return;
 
+        // 1. 绑定当前操作者身份
         identityService.setAuthenticatedUserId(initiatorUserId);
 
-        // Step 1. 找目标节点（提前找）
-        String targetId = resolveRevocationTargetActivityId(processInstanceId);
-
-        // Step 2. 先构建一个 modification，但不要立即 execute()
+        // 2. 先构建流程修改器
         ProcessInstanceModificationBuilder builder = runtimeService.createProcessInstanceModification(processInstanceId);
         ActivityInstance tree = runtimeService.getActivityInstance(processInstanceId);
 
@@ -66,16 +64,22 @@ public class ProcessInstanceService {
                     .forEach(builder::cancelAllForActivity);
         }
 
-        // ✅ Step 3. 同一个 builder 连续操作，再一次性 execute()
+        // 3. 执行清理（会自动删除相关任务）
+        builder.execute();
+
+        // 4. 重新启动目标节点
+        String targetId = resolveRevocationTargetActivityId(processInstanceId);
         if (targetId != null) {
-            builder.startBeforeActivity(targetId);
+            runtimeService.createProcessInstanceModification(processInstanceId)
+                    .startBeforeActivity(targetId)
+                    .execute();
         }
 
-        builder.execute(); // ✅ 一次执行，避免先删光再启动的问题
-
-        // Step 4. 设置标记
+        // 5. 设置撤回标识
         runtimeService.setVariable(processInstanceId, "revoked", true);
     }
+
+
 
 
     /**
